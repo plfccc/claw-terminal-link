@@ -75,6 +75,34 @@ npm run admin-client-socks -- gc
 npm run admin-client-socks -- kill <sessionId>
 ```
 
+## Auto update + startup (GitHub workflow)
+
+1) Clone repo on corp machine once:
+
+```powershell
+git clone https://github.com/plfccc/claw-terminal-link.git D:\app\FEISHU\download\claw-deploy
+cd D:\app\FEISHU\download\claw-deploy
+npm install
+```
+
+2) Start with update-then-run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\run-server.ps1
+```
+
+3) Install auto-start task:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install-task.ps1
+```
+
+4) Manual update only:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\update.ps1
+```
+
 ## Notes
 
 - This is still a fast-iteration build (no auth/TLS yet by design).
