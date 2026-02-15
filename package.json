@@ -1,0 +1,24 @@
+{
+  "name": "claw",
+  "version": "1.0.0",
+  "description": "",
+  "main": "relay.js",
+  "scripts": {
+    "relay": "node relay.js",
+    "agent": "node agent.js",
+    "client": "node client.js",
+    "corp-server": "node corp-server.js",
+    "corp-check": "node corp-server.js --check",
+    "local-client-socks": "node local-client-socks.js",
+    "admin-client-socks": "node admin-client-socks.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "node-pty": "^1.1.0",
+    "socks-proxy-agent": "^8.0.5",
+    "ws": "^8.19.0"
+  }
+}
