@@ -12,8 +12,16 @@ if (-not (Test-Path $script)) {
 
 $action = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$script`""
 
-schtasks /Delete /TN $TaskName /F 2>$null | Out-Null
-schtasks /Create /TN $TaskName /SC ONLOGON /RL HIGHEST /TR $action /F | Out-Host
+# Delete only if task exists (avoid hard-fail when missing)
+& schtasks /Query /TN $TaskName 1>$null 2>$null
+if ($LASTEXITCODE -eq 0) {
+  & schtasks /Delete /TN $TaskName /F | Out-Null
+}
+
+& schtasks /Create /TN $TaskName /SC ONLOGON /RL HIGHEST /TR $action /F | Out-Host
+if ($LASTEXITCODE -ne 0) {
+  throw "Failed to create task: $TaskName"
+}
 
 Write-Host "[task] installed: $TaskName"
 Write-Host "[task] run now: schtasks /Run /TN $TaskName"
