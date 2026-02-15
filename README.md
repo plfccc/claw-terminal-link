@@ -2,6 +2,8 @@
 
 Reverse terminal over SocksOverRDP.
 
+> Auto-update test @ 2026-02-16 00:50
+
 ## What you have now
 
 - `corp-server.js` (run on corp machine)
