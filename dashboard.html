@@ -129,6 +129,25 @@
         </div>
       </div>
       
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Uptime</div>
+          <div class="info-value" id="uptime">-</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Memory (RSS)</div>
+          <div class="info-value" id="memory">-</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">System Memory</div>
+          <div class="info-value" id="sysMem">-</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">CPU Cores</div>
+          <div class="info-value" id="cpuCount">-</div>
+        </div>
+      </div>
+      
       <button id="reconnectBtn" onclick="reconnect()">Reconnect</button>
       <div class="refresh-info">Auto-refresh every 3 seconds</div>
     </div>
@@ -243,10 +262,54 @@
     
     // Periodic status refresh
     setInterval(() => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'getStatus' }));
-      }
+      fetchStatus();
+      fetchLogs();
     }, 3000);
+    
+    function fetchStatus() {
+      fetch('/api/status')
+        .then(r => r.json())
+        .then(data => {
+          sessionId = data.sessionId || '-';
+          document.getElementById('sessionId').textContent = sessionId;
+          document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+          document.getElementById('uptime').textContent = formatUptime(data.uptime);
+          document.getElementById('memory').textContent = data.memory ? data.memory.rss : '-';
+          document.getElementById('sysMem').textContent = data.system ? `${data.system.freeMem} / ${data.system.totalMem}` : '-';
+          document.getElementById('cpuCount').textContent = data.system ? data.system.cpuCount : '-';
+          
+          if (data.connected) {
+            updateStatus('connected');
+          }
+        })
+        .catch(() => {});
+    }
+    
+    function fetchLogs() {
+      fetch('/api/logs')
+        .then(r => r.json())
+        .then(logs => {
+          logs.forEach(log => {
+            log.lines.forEach(line => {
+              try {
+                const entry = JSON.parse(line);
+                addLog(entry.level || 'info', entry.msg);
+              } catch (e) {}
+            });
+          });
+        })
+        .catch(() => {});
+    }
+    
+    function formatUptime(seconds) {
+      if (!seconds) return '-';
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      if (h > 0) return `${h}h ${m}m`;
+      if (m > 0) return `${m}m ${s}s`;
+      return `${s}s`;
+    }
   </script>
 </body>
 </html>
