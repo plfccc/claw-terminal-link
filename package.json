@@ -10,7 +10,8 @@
     "corp-server": "node corp-server.js",
     "corp-check": "node corp-server.js --check",
     "local-client-socks": "node local-client-socks.js",
-    "admin-client-socks": "node admin-client-socks.js"
+    "admin-client-socks": "node admin-client-socks.js",
+    "dashboard": "node dashboard-server.js"
   },
   "keywords": [],
   "author": "",

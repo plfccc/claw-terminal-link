@@ -1,6 +1,7 @@
 const WebSocket = require('ws');
 const net = require('net');
 const { SocksProxyAgent } = require('socks-proxy-agent');
+const logger = require('./logger');
 
 const SOCKS_PROXY = process.env.SOCKS_PROXY || 'socks5h://127.0.0.1:1080';
 const TARGET = process.env.TARGET || '127.0.0.1:17878';
@@ -39,6 +40,7 @@ function start() {
 
   ws.on('open', () => {
     retryMs = 1000;
+    logger.info('connected to server', { proxy: SOCKS_PROXY, target: TARGET });
     console.log(`connected via ${SOCKS_PROXY} -> ${TARGET}`);
 
     if (process.stdin.isTTY) process.stdin.setRawMode(true);
@@ -59,6 +61,7 @@ function start() {
 
     if (msg.type === 'hello_ack') {
       sessionId = msg.sessionId;
+      logger.info('session established', { sessionId, resumed: msg.resumed });
       console.log(`[session] ${sessionId} ${msg.resumed ? '(resumed)' : '(new)'}`);
       return;
     }
@@ -88,6 +91,7 @@ function start() {
   ws.on('close', () => {
     clearTimeout(pingTimeout);
     if (closing) return;
+    logger.warn('disconnected, retrying', { retryMs });
     console.log(`\n[disconnected] retry in ${Math.round(retryMs / 1000)}s...`);
     setTimeout(start, retryMs);
     retryMs = Math.min(Math.floor(retryMs * 1.8), RETRY_MAX_MS);
@@ -102,6 +106,7 @@ function start() {
   try {
     await checkSocksOpen(SOCKS_PROXY);
   } catch (e) {
+    logger.error('preflight failed: SOCKS proxy unavailable', { proxy: SOCKS_PROXY, error: e.message });
     console.error(`[preflight] SOCKS unavailable: ${SOCKS_PROXY} (${e.message})`);
     process.exit(1);
   }
@@ -121,6 +126,7 @@ function start() {
   }
 
   const t = parseHostPort(TARGET);
+  logger.info('client starting', { proxy: SOCKS_PROXY, target: `${t.host}:${t.port}` });
   console.log(`[preflight] socks ok. target=${t.host}:${t.port}`);
   start();
 })();

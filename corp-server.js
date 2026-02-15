@@ -2,6 +2,7 @@ const { WebSocketServer } = require('ws');
 const pty = require('node-pty');
 const net = require('net');
 const crypto = require('crypto');
+const logger = require('./logger');
 
 const PORT = Number(process.env.PORT || 17878);
 const HOST = process.env.HOST || '127.0.0.1';
@@ -60,8 +61,7 @@ function runGc() {
     if (!session.closed && session.clients.size === 0 && session.detachedAt && now - session.detachedAt > SESSION_TTL_MS) {
       try { session.term.kill(); } catch {}
       sessions.delete(sid);
-      removed.push(sid);
-      console.log(`[session-expired] ${sid}`);
+      logger.info('session expired', { sessionId: sid });
     }
   }
   return removed;
@@ -112,6 +112,7 @@ function createSession() {
   });
 
   sessions.set(sessionId, session);
+  logger.info('session created', { sessionId, shell });
   return session;
 }
 
@@ -120,6 +121,7 @@ function attachClient(session, ws) {
   session.detachedAt = null;
   session.lastActiveAt = Date.now();
   ws._sessionId = session.sessionId;
+  logger.info('client attached', { sessionId: session.sessionId, clients: session.clients.size });
 }
 
 function detachClient(ws) {
@@ -127,6 +129,7 @@ function detachClient(ws) {
   if (!session) return;
   session.clients.delete(ws);
   if (session.clients.size === 0) session.detachedAt = Date.now();
+  logger.info('client detached', { sessionId: session.sessionId, clients: session.clients.size });
 }
 
 setInterval(runGc, 5000);
@@ -213,4 +216,5 @@ setInterval(runGc, 5000);
   });
 
   console.log(`corp-server listening on ws://${HOST}:${PORT}`);
+  logger.info('server started', { host: HOST, port: PORT });
 })();
