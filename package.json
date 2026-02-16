@@ -2,11 +2,8 @@
   "name": "claw",
   "version": "1.0.1",
   "description": "",
-  "main": "relay.js",
+  "main": "corp-server.js",
   "scripts": {
-    "relay": "node relay.js",
-    "agent": "node agent.js",
-    "client": "node client.js",
     "corp-server": "node corp-server.js",
     "corp-check": "node corp-server.js --check",
     "corp-restart": "powershell -ExecutionPolicy Bypass -File restart-corp.ps1",

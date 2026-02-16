@@ -1,4 +1,0 @@
-{"ts":"2026-02-16T00:56:01.168Z","level":"ERROR","msg":"preflight failed: SOCKS proxy unavailable","proxy":"socks5h://127.0.0.1:1080","error":"connect ECONNREFUSED 127.0.0.1:1080"}
-{"ts":"2026-02-16T01:22:57.772Z","level":"ERROR","msg":"preflight failed: SOCKS proxy unavailable","proxy":"socks5h://127.0.0.1:1080","error":"connect ECONNREFUSED 127.0.0.1:1080"}
-{"ts":"2026-02-16T03:09:21.318Z","level":"ERROR","msg":"preflight failed: SOCKS proxy unavailable","proxy":"socks5h://127.0.0.1:1080","error":"connect ECONNREFUSED 127.0.0.1:1080"}
-{"ts":"2026-02-16T03:14:20.227Z","level":"ERROR","msg":"preflight failed: SOCKS proxy unavailable","proxy":"socks5h://127.0.0.1:1080","error":"connect ECONNREFUSED 127.0.0.1:1080"}
