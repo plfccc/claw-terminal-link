@@ -43,5 +43,34 @@ git pull
 Write-Host "Installing dependencies..." -ForegroundColor Yellow
 npm install
 
-Write-Host "Starting corp-server..." -ForegroundColor Green
-node corp-server.js
+Write-Host "Starting corp-server in background..." -ForegroundColor Green
+
+$logDir = Join-Path $PSScriptRoot "logs"
+if (!(Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
+
+$stdoutLog = Join-Path $logDir "corp-server.out.log"
+$stderrLog = Join-Path $logDir "corp-server.err.log"
+$pidFile = Join-Path $PSScriptRoot "corp-server.pid"
+
+$proc = Start-Process -FilePath "node" -ArgumentList "corp-server.js" -WorkingDirectory $PSScriptRoot -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog -PassThru
+$proc.Id | Set-Content -Path $pidFile -Encoding ascii
+Write-Host "Started corp-server PID $($proc.Id)" -ForegroundColor Green
+
+# Health check: wait up to 20s for port to listen
+$ok = $false
+for ($i = 0; $i -lt 20; $i++) {
+  Start-Sleep -Seconds 1
+  try {
+    $listen = Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort 17878 -State Listen -ErrorAction Stop
+    if ($listen) { $ok = $true; break }
+  } catch {}
+}
+
+if ($ok) {
+  Write-Host "corp-server is healthy: 127.0.0.1:17878 listening" -ForegroundColor Green
+} else {
+  Write-Host "corp-server did not become healthy in time. Check logs:" -ForegroundColor Red
+  Write-Host "  $stdoutLog"
+  Write-Host "  $stderrLog"
+  exit 1
+}
