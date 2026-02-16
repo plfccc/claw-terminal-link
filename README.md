@@ -7,6 +7,33 @@
 
 ---
 
+## 0. 前置依赖：SocksOverRDP
+
+本项目**依赖于** [SocksOverRDP](https://github.com/nccgroup/SocksOverRDP)。
+
+### 下载地址
+
+| 平台 | 下载链接 |
+|------|----------|
+| Windows x64 | https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-x64.zip |
+| Windows x86 | https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-x86.zip |
+| ARM64 | https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-ARM64.ZIP |
+
+### 安装说明
+
+1. **客户端（你的电脑）**：
+   - 解压 `SocksOverRDP-x64.zip`
+   - 注册 DLL：`regsvr32.exe SocksOverRDP-Plugin.dll`（需要管理员权限）
+   - 每次连接 RDP 时自动加载
+
+2. **服务器端（公司电脑）**：
+   - 解压后运行 `SocksOverRDP.exe`
+   - 会在本机创建 SOCKS5 代理：`127.0.0.1:1080`
+
+> 参考官方文档：https://github.com/nccgroup/SocksOverRDP
+
+---
+
 ## 1. 项目目标
 
 在公司内网受限、无法开 SSH 的场景下，仍能从本机稳定访问公司机终端。
@@ -44,6 +71,7 @@
 
 ## 3. 运行条件（必备）
 
+0. **已安装并运行 SocksOverRDP**（见第 0 节）
 1. 公司机已可用 SocksOverRDP，本机可访问 `127.0.0.1:1080`
 2. Node.js >= 18（已实测 24.x）
 3. 公司机和本机均有项目目录
