@@ -34,9 +34,10 @@ $portOwners = Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort 17878 -Sta
   Select-Object -ExpandProperty OwningProcess -Unique
 
 foreach ($pid in $portOwners) {
+  $pidStr = [string]$pid
   try {
-    Stop-Process -Id $pid -Force -ErrorAction Stop
-    Write-Host "  Freed port 17878 by stopping PID $pid" -ForegroundColor DarkYellow
+    Stop-Process -Id $pidStr -Force -ErrorAction Stop
+    Write-Host "  Freed port 17878 by stopping PID $pidStr" -ForegroundColor DarkYellow
   } catch {
     Write-Host "  Failed to free port from PID $pid: $($_.Exception.Message)" -ForegroundColor Red
   }
@@ -65,8 +66,13 @@ $pidFile = Join-Path $PSScriptRoot "corp-server.pid"
 
 Write-Host "[5/6] Starting corp-server in background..." -ForegroundColor Green
 $proc = Start-Process -FilePath "node" -ArgumentList "corp-server.js" -WorkingDirectory $PSScriptRoot -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog -PassThru
-$proc.Id | Set-Content -Path $pidFile -Encoding ascii
-Write-Host "  Started corp-server PID $($proc.Id)" -ForegroundColor Green
+if ($proc) {
+  $procIdStr = [string]$proc.Id
+  $proc.Id | Set-Content -Path $pidFile -Encoding ascii
+  Write-Host "  Started corp-server PID $procIdStr" -ForegroundColor Green
+} else {
+  Write-Host "  Failed to start corp-server" -ForegroundColor Red
+}
 
 # Health check (up to 25s)
 $ok = $false
