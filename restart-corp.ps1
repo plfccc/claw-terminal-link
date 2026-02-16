@@ -25,7 +25,8 @@ foreach ($p in $corpProcs) {
     Stop-Process -Id $p.ProcessId -Force -ErrorAction Stop
     Write-Host "  Stopped corp-server PID $($p.ProcessId)" -ForegroundColor DarkYellow
   } catch {
-    Write-Host "  Failed to stop PID $($p.ProcessId): $($_.Exception.Message)" -ForegroundColor Red
+    $errMsg = $_.Exception.Message
+    Write-Host "  Failed to stop PID $($p.ProcessId): $errMsg" -ForegroundColor Red
   }
 }
 
@@ -40,7 +41,8 @@ foreach ($pid in $portOwners) {
     Write-Host "  Freed port 17878 by stopping PID $pidStr" -ForegroundColor DarkYellow
   } catch {
     $pidErrStr = [string]$pid
-    Write-Host "  Failed to free port from PID $pidErrStr: $($_.Exception.Message)" -ForegroundColor Red
+    $errMsg = $_.Exception.Message
+    Write-Host "  Failed to free port from PID $pidErrStr: $errMsg" -ForegroundColor Red
   }
 }
 
