@@ -122,57 +122,80 @@ const TERM_HTML = `
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Terminal</title>
+  <link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css" />
   <style>
-    body { background: #000; margin: 0; padding: 20px; font-family: Consolas, monospace; }
-    #output { color: #0f0; white-space: pre-wrap; font-size: 14px; line-height: 1.4; }
-    #input { 
-      width: 100%; background: #111; color: #0f0; border: none; 
-      padding: 10px; font-family: Consolas, monospace; font-size: 14px; margin-top: 10px;
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: #111;
+      overflow: hidden;
     }
-    #input:focus { outline: none; }
+    #terminal {
+      width: 100%;
+      height: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
-  <div id="output"></div>
-  <input id="input" placeholder="Type command and press Enter..." autofocus>
+  <div id="terminal"></div>
+
+  <script src="https://unpkg.com/xterm/lib/xterm.js"></script>
+  <script src="https://unpkg.com/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
   <script>
-    const output = document.getElementById('output');
-    const input = document.getElementById('input');
-    
-    function add(text) {
-      output.textContent += text;
-      window.scrollTo(0, document.body.scrollHeight);
-    }
-    
-    add('Connecting...\\n');
-    
+    const term = new Terminal({
+      cursorBlink: true,
+      fontFamily: 'Consolas, Menlo, monospace',
+      fontSize: 14,
+      theme: { background: '#111111' },
+      convertEol: true,
+    });
+
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    fitAddon.fit();
+
     const ws = new WebSocket('ws://127.0.0.1:17881/');
-    
-    ws.onopen = () => add('[Connected]\\n');
-    
+
+    ws.onopen = () => {
+      term.writeln('[connected]');
+      sendResize();
+    };
+
     ws.onmessage = (e) => {
       try {
         const m = JSON.parse(e.data);
-        if (m.type === 'data' && m.data) add(m.data);
-        else if (m.type === 'hello_ack') add('[Session: ' + m.sessionId + ']\\n');
-        else if (m.type === 'raw' && m.data) add(m.data);
-        else if (m.type === 'error' && m.data) add('[Error] ' + m.data + '\\n');
+        if (m.type === 'data' && m.data) term.write(m.data);
+        else if (m.type === 'hello_ack') term.writeln('[session: ' + m.sessionId + ']');
+        else if (m.type === 'raw' && m.data) term.write(m.data);
+        else if (m.type === 'error' && m.data) term.writeln('\r\n[error] ' + m.data);
       } catch {
-        add(e.data);
+        term.write(e.data);
       }
     };
-    
-    ws.onclose = () => add('[Disconnected]\\n');
-    ws.onerror = () => add('[Error]\\n');
-    
-    input.onkeydown = (e) => {
-      if (e.key === 'Enter' && ws.readyState === 1) {
-        ws.send(input.value + '\\r');
-        add('> ' + input.value + '\\n');
-        input.value = '';
-      }
-    };
+
+    ws.onclose = () => term.writeln('\r\n[disconnected]');
+    ws.onerror = () => term.writeln('\r\n[ws error]');
+
+    term.onData((data) => {
+      if (ws.readyState === 1) ws.send(data);
+    });
+
+    function sendResize() {
+      if (ws.readyState !== 1) return;
+      ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+    }
+
+    window.addEventListener('resize', () => {
+      fitAddon.fit();
+      sendResize();
+    });
   </script>
 </body>
 </html>
