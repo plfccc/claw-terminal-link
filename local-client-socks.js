@@ -127,6 +127,14 @@ function start() {
 
   const t = parseHostPort(TARGET);
   logger.info('client starting', { proxy: SOCKS_PROXY, target: `${t.host}:${t.port}` });
+
+  // Keep-alive: send periodic ping to prevent RDP idle timeout
+  const KEEPALIVE_INTERVAL_MS = 120000; // 2 minutes
+  setInterval(() => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'ping', ts: Date.now() }));
+    }
+  }, KEEPALIVE_INTERVAL_MS);
   console.log(`[preflight] socks ok. target=${t.host}:${t.port}`);
   start();
 })();
