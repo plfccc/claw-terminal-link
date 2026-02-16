@@ -23,5 +23,9 @@ if (Test-Path "node_modules\node-pty\prebuilds\win32-x64") {
 Write-Host "Installing dependencies..." -ForegroundColor Yellow
 npm install
 
+# Rebuild native modules if needed
+Write-Host "Rebuilding native modules..." -ForegroundColor Yellow
+npm rebuild node-pty 2>$null
+
 Write-Host "Starting corp-server..." -ForegroundColor Green
 node corp-server.js
