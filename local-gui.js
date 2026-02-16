@@ -279,26 +279,47 @@ wss.on('connection', (ws) => {
 
 function startClient(cb) {
   if (clientProc) { cb(null); return; }
-  
+
+  let settled = false;
+  const done = (err = null) => {
+    if (settled) return;
+    settled = true;
+    cb(err);
+  };
+
   clientProc = spawn('node', ['local-client-socks.js'], {
     cwd: __dirname,
     env: { ...process.env, SOCKS_PROXY: 'socks5h://127.0.0.1:1080', TARGET: '127.0.0.1:17878' },
     detached: false,
     stdio: ['ignore', 'pipe', 'pipe']
   });
-  
+
+  const timeout = setTimeout(() => {
+    if (!isConnected) done(new Error('Connection timeout'));
+  }, 5000);
+
   clientProc.stdout.on('data', (d) => {
-    console.log(d.toString());
-    if (d.toString().includes('connected to server')) {
+    const text = d.toString();
+    console.log(text);
+    if (text.includes('connected to server')) {
       isConnected = true;
-      cb(null);
+      clearTimeout(timeout);
+      done(null);
     }
   });
-  
+
   clientProc.stderr.on('data', (d) => console.error(d.toString()));
-  clientProc.on('close', () => { isConnected = false; clientProc = null; });
-  
-  setTimeout(() => { if (!isConnected) cb(new Error('Connection timeout')); }, 5000);
+
+  clientProc.on('error', (err) => {
+    clearTimeout(timeout);
+    done(err);
+  });
+
+  clientProc.on('close', () => {
+    clearTimeout(timeout);
+    isConnected = false;
+    clientProc = null;
+  });
 }
 
 server.listen(PORT, () => {
