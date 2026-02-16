@@ -12,7 +12,8 @@
     "corp-restart": "powershell -ExecutionPolicy Bypass -File restart-corp.ps1",
     "local-client-socks": "node local-client-socks.js",
     "admin-client-socks": "node admin-client-socks.js",
-    "dashboard": "node dashboard-server.js"
+    "dashboard": "node dashboard-server.js",
+    "gui": "node local-gui.js"
   },
   "keywords": [],
   "author": "",
