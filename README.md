@@ -38,9 +38,7 @@
   - 本地 WS 桥接（17881）
 
 ### 运维脚本
-- `restart-corp.ps1`：稳健重启（精确杀进程 + 更新 + 安装 + 后台启动 + 健康检查 + 前台兜底）
-- `restart-corp-detached.ps1`：脱离当前会话触发重启（适合“远程会话执行重启”）
-- `run-server.ps1`、`update.ps1`、`install-task.ps1`
+- `restart-corp.ps1`：唯一的重启脚本（后台启动 + 健康检查 + 前台兜底，远程执行安全）
 
 ---
 
@@ -98,11 +96,8 @@ npm run corp-check
 # 公司端前台启动（排错首选）
 npm run corp-server
 
-# 公司端重启（本机控制台执行可用）
+# 公司端重启（远程执行推荐）
 npm run corp-restart
-
-# 公司端重启（远程会话执行推荐，不依赖当前会话）
-npm run corp-restart-detached
 
 # 本机 CLI
 npm run local-client-socks
@@ -121,9 +116,9 @@ npm run dashboard
 
 ---
 
-## 6. 重要说明：为什么远程执行重启容易“看起来失败”
+## 6. 重要说明：为什么远程执行重启容易"看起来失败"
 
-如果你是在“由 corp-server 提供的远程终端里”执行重启：
+如果你是在"由 corp-server 提供的远程终端里"执行重启：
 - 重启会先停掉 corp-server
 - 当前远程会话本身会断
 - 客户端会看到 `ConnectionRefused`
