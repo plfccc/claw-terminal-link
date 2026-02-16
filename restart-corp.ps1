@@ -25,7 +25,7 @@ foreach ($pid in $portOwners) {
     Stop-Process -Id $pid -Force -ErrorAction Stop
     Write-Host "Freed port 17878 by stopping PID $pid" -ForegroundColor DarkYellow
   } catch {
-    Write-Host "Failed to free port from PID $pid: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Failed to free port from PID ${pid}: $($_.Exception.Message)" -ForegroundColor Red
   }
 }
 
