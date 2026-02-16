@@ -18,15 +18,16 @@ Write-Host "[1/6] Stopping old corp-server process..." -ForegroundColor Yellow
 
 # Kill node process running corp-server.js (do NOT kill all node.exe)
 $corpProcs = Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
-  Where-Object { $_.CommandLine -match 'corp-server\.js' }
+  Where-Object { $_.CommandLine -match 'corp-server.js' }
 
 foreach ($p in $corpProcs) {
   try {
-    Stop-Process -Id $p.ProcessId -Force -ErrorAction Stop
-    Write-Host "  Stopped corp-server PID $($p.ProcessId)" -ForegroundColor DarkYellow
+    $procId = $p.ProcessId
+    Stop-Process -Id $procId -Force -ErrorAction Stop
+    Write-Host "  Stopped corp-server PID $procId" -ForegroundColor DarkYellow
   } catch {
     $errMsg = $_.Exception.Message
-    Write-Host "  Failed to stop PID $($p.ProcessId): $errMsg" -ForegroundColor Red
+    Write-Host "  Failed to stop PID: $errMsg" -ForegroundColor Red
   }
 }
 
@@ -35,14 +36,11 @@ $portOwners = Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort 17878 -Sta
   Select-Object -ExpandProperty OwningProcess -Unique
 
 foreach ($pid in $portOwners) {
-  $pidStr = [string]$pid
   try {
-    Stop-Process -Id $pidStr -Force -ErrorAction Stop
-    Write-Host "  Freed port 17878 by stopping PID $pidStr" -ForegroundColor DarkYellow
+    Stop-Process -Id $pid -Force -ErrorAction Stop
+    Write-Host "  Freed port 17878 by stopping PID $pid" -ForegroundColor DarkYellow
   } catch {
-    $pidErrStr = [string]$pid
-    $errMsg = $_.Exception.Message
-    Write-Host "  Failed to free port from PID $pidErrStr: $errMsg" -ForegroundColor Red
+    Write-Host "  Failed to free port" -ForegroundColor Red
   }
 }
 
@@ -69,10 +67,11 @@ $pidFile = Join-Path $PSScriptRoot "corp-server.pid"
 
 Write-Host "[5/6] Starting corp-server in background..." -ForegroundColor Green
 $proc = Start-Process -FilePath "node" -ArgumentList "corp-server.js" -WorkingDirectory $PSScriptRoot -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog -PassThru
+
 if ($proc) {
-  $procIdStr = [string]$proc.Id
+  $procId = $proc.Id
   $proc.Id | Set-Content -Path $pidFile -Encoding ascii
-  Write-Host "  Started corp-server PID $procIdStr" -ForegroundColor Green
+  Write-Host "  Started corp-server PID $procId" -ForegroundColor Green
 } else {
   Write-Host "  Failed to start corp-server" -ForegroundColor Red
 }
