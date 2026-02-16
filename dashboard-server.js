@@ -98,16 +98,21 @@ function connectToCorpServer() {
   ws.on('open', () => {
     isConnected = true;
     logger.info('connected to corp-server for dashboard');
-    ws.send(JSON.stringify({ type: 'hello', sessionId: null, lastSeq: 0 }));
+    // Monitor mode - don't create sessions
+    ws.send(JSON.stringify({ type: 'hello', sessionId: null, lastSeq: 0, monitor: true }));
   });
   
   ws.on('message', (raw) => {
     try {
       const msg = JSON.parse(raw.toString());
-      if (msg.type === 'hello_ack') {
-        sessionId = msg.sessionId;
+      if (msg.type === 'hello_ack' && msg.monitor) {
+        // Monitor mode - just confirm connection
+        isConnected = true;
         broadcastStatus();
-        logger.info('got session from corp-server', { sessionId });
+        logger.info('dashboard connected in monitor mode');
+      } else if (msg.type === 'session_list') {
+        // Received session list from corp-server
+        broadcastSessions(msg.sessions);
       }
     } catch (e) {}
   });
@@ -135,6 +140,21 @@ function broadcastStatus() {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(status);
+    }
+  });
+}
+
+let cachedSessions = [];
+function broadcastSessions(sessions) {
+  cachedSessions = sessions;
+  const data = JSON.stringify({
+    type: 'sessions',
+    sessions,
+  });
+  
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
     }
   });
 }

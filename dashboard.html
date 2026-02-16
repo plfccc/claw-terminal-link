@@ -67,6 +67,34 @@
     .info-label { font-size: 12px; color: #888; margin-bottom: 4px; }
     .info-value { font-size: 14px; font-family: monospace; word-break: break-all; }
     
+    .sessions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .session-item {
+      background: #0f3460;
+      padding: 12px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .session-info { flex: 1; }
+    .session-id { font-family: monospace; font-size: 12px; color: #00d26a; }
+    .session-meta { font-size: 11px; color: #888; margin-top: 4px; }
+    .session-status { 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 11px;
+    }
+    .session-status.active { background: #00d26a; color: #000; }
+    .session-status.detached { background: #fcd53f; color: #000; }
+    
+    .no-sessions { color: #666; text-align: center; padding: 20px; }
+    
     button {
       background: #e94560;
       color: #fff;
@@ -147,6 +175,11 @@
           <div class="info-value" id="cpuCount">-</div>
         </div>
       </div>
+
+      <h3 style="margin: 20px 0 10px; color: #e94560;">Active Sessions</h3>
+      <div id="sessionsList" class="sessions-list">
+        <div class="no-sessions">No active sessions</div>
+      </div>
       
       <button id="reconnectBtn" onclick="reconnect()">Reconnect</button>
       <div class="refresh-info">Auto-refresh every 3 seconds</div>
@@ -211,9 +244,34 @@
         if (data.connected) {
           updateStatus('connected');
         }
+      } else if (data.type === 'sessions') {
+        renderSessions(data.sessions || []);
       } else if (data.type === 'log') {
         addLog(data.level || 'info', data.message);
       }
+    }
+
+    function renderSessions(sessions) {
+      const container = document.getElementById('sessionsList');
+      if (!sessions || sessions.length === 0) {
+        container.innerHTML = '<div class="no-sessions">No active sessions</div>';
+        return;
+      }
+      
+      container.innerHTML = sessions.map(s => {
+        const status = s.clients > 0 ? 'active' : 'detached';
+        const statusText = s.clients > 0 ? 'Active' : 'Detached';
+        const created = new Date(s.createdAt).toLocaleString();
+        return `
+          <div class="session-item">
+            <div class="session-info">
+              <div class="session-id">${s.sessionId.substring(0, 8)}...</div>
+              <div class="session-meta">${created} | Clients: ${s.clients}</div>
+            </div>
+            <div class="session-status ${status}">${statusText}</div>
+          </div>
+        `;
+      }).join('');
     }
     
     function updateStatus(status) {

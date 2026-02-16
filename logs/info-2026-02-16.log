@@ -1,0 +1,12 @@
+{"ts":"2026-02-16T01:25:52.867Z","level":"INFO","msg":"client starting","proxy":"socks5h://127.0.0.1:1080","target":"127.0.0.1:17878"}
+{"ts":"2026-02-16T01:25:52.996Z","level":"INFO","msg":"connected to server","proxy":"socks5h://127.0.0.1:1080","target":"127.0.0.1:17878"}
+{"ts":"2026-02-16T01:25:53.067Z","level":"INFO","msg":"session established","sessionId":"2bb03395-e602-49f0-bdb0-d7877554af9b","resumed":false}
+{"ts":"2026-02-16T01:30:03.526Z","level":"INFO","msg":"client starting","proxy":"socks5h://127.0.0.1:1080","target":"127.0.0.1:17878"}
+{"ts":"2026-02-16T01:30:03.654Z","level":"INFO","msg":"connected to server","proxy":"socks5h://127.0.0.1:1080","target":"127.0.0.1:17878"}
+{"ts":"2026-02-16T01:30:03.725Z","level":"INFO","msg":"session established","sessionId":"c6b06df7-c1e9-439a-b05b-3198dd25863f","resumed":false}
+{"ts":"2026-02-16T03:17:18.951Z","level":"INFO","msg":"client starting","proxy":"socks5h://127.0.0.1:1080","target":"127.0.0.1:17878"}
+{"ts":"2026-02-16T03:19:52.745Z","level":"INFO","msg":"connected to server","proxy":"socks5h://127.0.0.1:1080","target":"127.0.0.1:17878"}
+{"ts":"2026-02-16T03:19:52.840Z","level":"INFO","msg":"session established","sessionId":"17da64e5-1c16-4c27-b406-05dc64c42a1d","resumed":false}
+{"ts":"2026-02-16T03:26:51.394Z","level":"INFO","msg":"client starting","proxy":"socks5h://127.0.0.1:1080","target":"127.0.0.1:17878"}
+{"ts":"2026-02-16T03:29:23.373Z","level":"INFO","msg":"connected to server","proxy":"socks5h://127.0.0.1:1080","target":"127.0.0.1:17878"}
+{"ts":"2026-02-16T03:29:23.518Z","level":"INFO","msg":"session established","sessionId":"aa29b148-a559-4538-8e84-db8f213a7ec6","resumed":false}

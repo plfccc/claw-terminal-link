@@ -172,6 +172,19 @@ setInterval(runGc, 5000);
       }
 
       if (msg.type === 'hello') {
+        // Monitor mode - just observe sessions, don't create one
+        if (msg.monitor) {
+          ws._isMonitor = true;
+          ws.send(JSON.stringify({ type: 'hello_ack', sessionId: null, resumed: false, monitor: true }));
+          // Send current session list
+          ws.send(JSON.stringify({ type: 'session_list', sessions: [...sessions.values()].map(summarizeSession) }));
+          clearInterval(heartbeatTimer);
+          heartbeatTimer = setInterval(() => {
+            if (ws.readyState === ws.OPEN) ws.send(JSON.stringify({ type: 'ping', ts: Date.now() }));
+          }, 10000);
+          return;
+        }
+
         let session;
         if (msg.sessionId && sessions.has(msg.sessionId)) {
           session = sessions.get(msg.sessionId);
