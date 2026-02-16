@@ -1,8 +1,8 @@
-# claw-terminal-relay (MVP -> v1)
+# claw-terminal-relay (MVP -> v1.1)
 
 Reverse terminal over SocksOverRDP.
 
-> Auto-update test @ 2026-02-16 00:50
+> Auto-update test @ 2026-02-16 11:22
 
 ## What you have now
 
